@@ -5,21 +5,20 @@
 int main() {
   Simplex::Statement statement;
 
-  // Variant 6
-  statement.functionVector = {2, 5, 3};
+  statement.functionVector = {2, 6, 7};
   statement.functionLimit = Simplex::LimitTo::Max;
   statement.aMatrix = {
-      {2, 1, 2},
+      {3, 1, 1},
       {1, 2, 0},
-      {0, 0.5, 1},
-      {0, -1, 0},
+      {0, 0.5, 2},
   };
-  statement.bVector = {6, 6, 2, -3};
+  statement.bVector = {3, 8, 1};
   statement.bSign = {
       Simplex::EquationSign::LessOrEqual,
       Simplex::EquationSign::LessOrEqual,
       Simplex::EquationSign::LessOrEqual,
   };
+  statement.fractional = false;
 
   double answer;
   auto result = Simplex::getSolution(statement, answer);

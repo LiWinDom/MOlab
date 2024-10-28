@@ -1,10 +1,13 @@
 #include "Solver.h"
 
+#include <cmath>
+
 #define DEBUG_PRINT 1
 #ifndef DEBUG_PRINT
   #define DEBUG_PRINT 0
 #endif
 
+#pragma region
 #if defined(DEBUG_PRINT) && DEBUG_PRINT
 #include <iomanip>
 #include <iostream>
@@ -71,6 +74,7 @@ void printMatrix(const std::vector<std::vector<double>> &matrix) {
 #define matrixSwap(...) 42
 #define printMatrix(...) 42
 #endif
+#pragma endregion
 
 using namespace Simplex;
 
@@ -190,7 +194,7 @@ Result optimizeMatrix(std::vector<std::vector<double>> &matrix) {
       // Element found => recalculating matrix
       auto newMatrix = recalcMatrix(matrix, j);
       // Checking
-      for (auto k = 0; k < matrix.size() - 1; ++k) {
+      for (auto k = 0; k < newMatrix.size() - 1; ++k) {
         if (newMatrix[k][0] < 0) {
           // Optimization broke something => cannot optimize
           #if defined(DEBUG_PRINT) && DEBUG_PRINT
@@ -207,6 +211,61 @@ Result optimizeMatrix(std::vector<std::vector<double>> &matrix) {
   end:
   // Didn't find any negative elements in first column => solution found
   return Result::OneSolution;
+}
+
+double defractionizeMatrix(Statement statement, const std::vector<std::vector<double>> &matrix) {
+  // Checking if solution is valid
+  for (auto i = 0; i < matrix.size() - 1; ++i) {
+    double intPart;
+    if (std::modf(matrix[i][0], &intPart) != 0) {
+      // Nu eto uzhe perebor...
+      #if defined(DEBUG_PRINT) && DEBUG_PRINT
+        std::cout << "Spliting x" << i + 1 << std::endl;
+      #endif
+
+      double answer1, answer2;
+
+      std::vector<double> vec(statement.functionVector.size(), 0);
+      vec[i] = 1;
+      statement.aMatrix.push_back(vec);
+      statement.bVector.push_back(intPart);
+      statement.bSign.push_back(EquationSign::LessOrEqual);
+
+      #if defined(DEBUG_PRINT) && DEBUG_PRINT
+        std::cout << "===== x" << i + 1 << " <= " << intPart << " =====" << std::endl;
+      #endif
+      auto result1 = getSolution(statement, answer1);
+
+      statement.bVector[statement.bVector.size() - 1] = intPart + 1;
+      statement.bSign[statement.bSign.size() - 1] = EquationSign::MoreOrEqual;
+
+      #if defined(DEBUG_PRINT) && DEBUG_PRINT
+        std::cout << "===== x" << i + 1 << " >= " << intPart + 1 << " =====" << std::endl;
+      #endif
+      auto result2 = getSolution(statement, answer2);
+
+      if (result1 != Simplex::Result::OneSolution) {
+        return answer2;
+      }
+      if (result2 != Simplex::Result::OneSolution) {
+        return answer1;
+      }
+
+      if (statement.functionLimit == LimitTo::Min) {
+        return std::min(answer1, answer2);
+      }
+      else {
+        return std::max(answer1, answer2);
+      }
+    }
+  }
+
+  // Everything is ok
+  double answer = matrix[matrix.size() - 1][0];
+  if (statement.functionLimit == LimitTo::Max) {
+    answer = -answer;
+  }
+  return answer;
 }
 
 Result Simplex::getSolution(const Statement &statement, double &answer) {
@@ -232,9 +291,14 @@ Result Simplex::getSolution(const Statement &statement, double &answer) {
     return result;
   }
 
-  answer = matrix[matrix.size() - 1][0];
-  if (statement.functionLimit == LimitTo::Max) {
-    answer = -answer;
+  if (statement.fractional) {
+    answer = matrix[matrix.size() - 1][0];
+    if (statement.functionLimit == LimitTo::Max) {
+      answer = -answer;
+    }
+  }
+  else {
+    answer = defractionizeMatrix(statement, matrix);
   }
   return result;
 }

@@ -16,5 +16,6 @@ namespace Simplex {
     std::vector<std::vector<double>> aMatrix;
     std::vector<double> bVector;
     std::vector<EquationSign> bSign;
+    bool fractional = true;
   };
 }
