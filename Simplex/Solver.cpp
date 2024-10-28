@@ -185,30 +185,28 @@ Result optimizeMatrix(std::vector<std::vector<double>> &matrix) {
       // Trying to find any positive elements in this column
       for (auto k = 0; k < matrix.size() - 1; ++k) {
         if (matrix[k][j] > 0) {
-          goto found;
+          // Element found => recalculating matrix
+          auto newMatrix = recalcMatrix(matrix, j);
+          // Checking
+          for (auto k = 0; k < newMatrix.size() - 1; ++k) {
+            if (newMatrix[k][0] < 0) {
+              // Optimization broke something => trying next column
+              #if defined(DEBUG_PRINT) && DEBUG_PRINT
+                std::cout << "Incorrect solution - rollback to previous" << std::endl;
+              #endif
+              goto next;
+            }
+          }
+          // Nothing broke => optimizing further
+          matrix = newMatrix;
+          goto start;
         }
       }
       // Didn't find any positive elements in this column => infinite solutions exists
       return Result::InfiniteSolutions;
-      found:
-      // Element found => recalculating matrix
-      auto newMatrix = recalcMatrix(matrix, j);
-      // Checking
-      for (auto k = 0; k < newMatrix.size() - 1; ++k) {
-        if (newMatrix[k][0] < 0) {
-          // Optimization broke something => cannot optimize
-          #if defined(DEBUG_PRINT) && DEBUG_PRINT
-            std::cout << "Incorrect solution - rollback to previous" << std::endl;
-          #endif
-          goto end;
-        }
-      }
-      // Nothing broke => optimizing further
-      matrix = newMatrix;
-      goto start;
     }
+    next:
   }
-  end:
   // Didn't find any negative elements in first column => solution found
   return Result::OneSolution;
 }
