@@ -187,11 +187,24 @@ Result optimizeMatrix(std::vector<std::vector<double>> &matrix) {
       // Didn't find any positive elements in this column => infinite solutions exists
       return Result::InfiniteSolutions;
       found:
-      // Element found => recalculating matrix and doing everything again
-      matrix = recalcMatrix(matrix, j);
+      // Element found => recalculating matrix
+      auto newMatrix = recalcMatrix(matrix, j);
+      // Checking
+      for (auto k = 0; k < matrix.size() - 1; ++k) {
+        if (newMatrix[k][0] < 0) {
+          // Optimization broke something => cannot optimize
+          #if defined(DEBUG_PRINT) && DEBUG_PRINT
+            std::cout << "Incorrect solution - rollback to previous" << std::endl;
+          #endif
+          goto end;
+        }
+      }
+      // Nothing broke => optimizing further
+      matrix = newMatrix;
       goto start;
     }
   }
+  end:
   // Didn't find any negative elements in first column => solution found
   return Result::OneSolution;
 }
@@ -200,7 +213,6 @@ Result Simplex::getSolution(const Statement &statement, double &answer) {
   auto matrix = createMatrix(statement);
   printMatrix(matrix);
 
-start:
   #if defined(DEBUG_PRINT) && DEBUG_PRINT
     #include <iostream>
     std::cout << "Trying to find solution..." << std::endl;
@@ -218,16 +230,6 @@ start:
   result = optimizeMatrix(matrix);
   if (result != Result::OneSolution) {
     return result;
-  }
-
-  // Checking
-  for (auto i = 0; i < matrix.size() - 1; ++i) {
-    if (matrix[i][0] < 0) {
-      #if defined(DEBUG_PRINT) && DEBUG_PRINT
-        std::cout << "Something broke :(" << std::endl;
-      #endif
-      goto start;
-    }
   }
 
   answer = matrix[matrix.size() - 1][0];
