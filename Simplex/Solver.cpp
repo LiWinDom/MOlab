@@ -14,6 +14,7 @@
 #include <vector>
 
 std::vector<std::vector<std::string>> variablesTable(2);
+std::vector<std::vector<std::string>> oldVariablesTable(2);
 
 static size_t step = 0;
 void fillVariablesTable(size_t rows, size_t columns) {
@@ -34,7 +35,12 @@ void fillVariablesTable(size_t rows, size_t columns) {
 }
 
 void matrixSwap(size_t row, size_t column) {
+  oldVariablesTable = variablesTable;
   std::swap(variablesTable[0][row], variablesTable[1][column]);
+}
+
+void undoMatrixSwap() {
+  variablesTable = oldVariablesTable;
 }
 
 inline void printDivider(size_t columsNum) {
@@ -120,7 +126,7 @@ std::vector<std::vector<double>> recalcMatrix(const std::vector<std::vector<doub
       continue;
     }
     auto relation = matrix[i][0] / matrix[i][jMain];
-    if (relation > 0 && relation < minRelation) {
+    if (relation > 0 && relation <= minRelation) {
       minRelation = relation;
       iMain = i;
     }
@@ -193,6 +199,7 @@ Result optimizeMatrix(std::vector<std::vector<double>> &matrix) {
               // Optimization broke something => trying next column
               #if defined(DEBUG_PRINT) && DEBUG_PRINT
                 std::cout << "Incorrect solution - rollback to previous" << std::endl;
+                undoMatrixSwap();
               #endif
               goto next;
             }
