@@ -296,13 +296,23 @@ Result Simplex::getSolution(const Statement &statement, double &answer) {
     return result;
   }
 
-  if (statement.fractional) {
-    answer = matrix[matrix.size() - 1][0];
-    if (statement.functionLimit == LimitTo::Max) {
-      answer = -answer;
-    }
+  answer = matrix[matrix.size() - 1][0];
+  if (statement.functionLimit == LimitTo::Max) {
+    answer = -answer;
   }
-  else {
+
+#if defined(DEBUG_PRINT) && DEBUG_PRINT
+  for (auto i = 0; i < variablesTable[0].size() - 1; ++i) {
+    std::cout << variablesTable[0][i] << " = " << matrix[i][0] << ", ";
+  }
+  for (auto i = 1; i < variablesTable[1].size(); ++i) {
+    std::cout << variablesTable[1][i] << " = ";
+  }
+  std::cout << 0 << std::endl;
+  std::cout << "F = " << answer << std::endl;
+#endif
+
+  if (!statement.fractional) {
     answer = defractionizeMatrix(statement, matrix);
   }
   return result;
