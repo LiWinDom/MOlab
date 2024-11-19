@@ -36,8 +36,7 @@ int main() {
   }
 
   // Bruteforce
-  double ans = 0;
-  double x1, x2, x3;
+  std::cout << std::endl << "Bruteforce:" << std::endl;
   for (auto i = 0; i < 10; ++i) {
     for (auto j = 0; j < 10; ++j) {
       for (auto k = 0; k < 10; ++k) {
@@ -47,18 +46,12 @@ int main() {
           }
         }
         // Every statement is correct
-        if (i * statement.functionVector[0] + j * statement.functionVector[1] + k * statement.functionVector[2] > ans) {
-          ans = i * statement.functionVector[0] + j * statement.functionVector[1] + k * statement.functionVector[2];
-          x1 = i;
-          x2 = j;
-          x3 = k;
-        }
+        std::cout << "x1 = " << i << ", x2 = " << j << ", x3 = " << k
+          << "; F = " << i * statement.functionVector[0] + j * statement.functionVector[1] + k * statement.functionVector[2] << std::endl;
         next:
       }
     }
   }
-  std::cout << std::endl << "Answer with bruteforce: " << ans << std::endl;
-  std::cout << "x1: " << x1 << ", x2: " << x2 << ", x3: " << x3;
 
   return 0;
 }
