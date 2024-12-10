@@ -3,54 +3,56 @@
 #include "Simplex.h"
 
 int main() {
-  Simplex::Statement statement;
+  Simplex::Statement statementA, statementB;
 
-  statement.functionVector = {2, 6, 7};
-  statement.functionLimit = Simplex::LimitTo::Max;
-  statement.aMatrix = {
-      {3, 1, 1},
-      {1, 2, 0},
-      {0, 0.5, 2},
+  statementA.functionVector = {1, 1, 1, 1, 1};
+  statementA.functionLimit = Simplex::LimitTo::Min;
+  statementA.aMatrix = {
+      {6, 17, 16, 18, 15},
+      {18, 8, 16, 8, 8},
+      {6, 13, 28, 4, 3},
+      {15, 14, 12, 18, 19},
   };
-  statement.bVector = {3, 8, 1};
-  statement.bSign = {
+  statementA.bVector = {1, 1, 1, 1};
+  statementA.bSign = {
+      Simplex::EquationSign::MoreOrEqual,
+      Simplex::EquationSign::MoreOrEqual,
+      Simplex::EquationSign::MoreOrEqual,
+      Simplex::EquationSign::MoreOrEqual,
+  };
+
+  statementB.functionVector = {1, 1, 1, 1};
+  statementB.functionLimit = Simplex::LimitTo::Max;
+  statementB.aMatrix = {
+      {6, 18, 6, 15},
+      {17, 8, 13, 14},
+      {16, 16, 28, 12},
+      {18, 8, 4, 18},
+      {15, 8, 3, 19},
+  };
+  statementB.bVector = {1, 1, 1, 1, 1};
+  statementB.bSign = {
+      Simplex::EquationSign::LessOrEqual,
+      Simplex::EquationSign::LessOrEqual,
       Simplex::EquationSign::LessOrEqual,
       Simplex::EquationSign::LessOrEqual,
       Simplex::EquationSign::LessOrEqual,
   };
-  statement.fractional = false;
 
-  double answer;
-  auto result = Simplex::getSolution(statement, answer);
+  double answerA, answerB;
+  auto resultA = Simplex::getSolution(statementA, answerA);
+  auto resultB = Simplex::getSolution(statementB, answerB);
 
-  switch (result) {
+  switch (resultA) {
     case Simplex::Result::NoneSolutions:
       std::cout << "None solutions found" << std::endl;
       break;
     case Simplex::Result::OneSolution:
-      std::cout << "One solution found: " << answer << std::endl;
+      std::cout << "One solution found: " << answerA << ' ' << answerB << std::endl;
       break;
     case Simplex::Result::InfiniteSolutions:
       std::cout << "Infinite solutions found" << std::endl;
       break;
-  }
-
-  // Bruteforce
-  std::cout << std::endl << "Bruteforce:" << std::endl;
-  for (auto i = 0; i < 10; ++i) {
-    for (auto j = 0; j < 10; ++j) {
-      for (auto k = 0; k < 10; ++k) {
-        for (auto l = 0; l < statement.bVector.size(); ++l) {
-          if (i * statement.aMatrix[l][0] + j * statement.aMatrix[l][1] + k * statement.aMatrix[l][2] > statement.bVector[l]) {
-            goto next;
-          }
-        }
-        // Every statement is correct
-        std::cout << "x1 = " << i << ", x2 = " << j << ", x3 = " << k
-          << "; F = " << i * statement.functionVector[0] + j * statement.functionVector[1] + k * statement.functionVector[2] << std::endl;
-        next:
-      }
-    }
   }
 
   return 0;

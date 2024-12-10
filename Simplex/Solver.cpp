@@ -1,7 +1,5 @@
 #include "Solver.h"
 
-#include <cmath>
-
 #define DEBUG_PRINT 1
 #ifndef DEBUG_PRINT
   #define DEBUG_PRINT 0
@@ -46,7 +44,7 @@ void undoMatrixSwap() {
 inline void printDivider(size_t columsNum) {
   std::cout << "+";
   for (auto i = 0; i <= columsNum; ++i) {
-    std::cout << "-------+";
+    std::cout << "--------+";
   }
   std::cout << std::endl;
 }
@@ -56,18 +54,18 @@ void printMatrix(const std::vector<std::vector<double>> &matrix) {
 
   printDivider(matrix[0].size());
   std::cout << "|";
-  std::cout << std::right << std::setfill(' ') << std::setw(7) << " " << '|';
+  std::cout << std::right << std::setfill(' ') << std::setw(8) << " " << '|';
   for (auto elem : variablesTable[1]) {
-    std::cout << std::right << std::setfill(' ') << std::setw(7) << elem << '|';
+    std::cout << std::right << std::setfill(' ') << std::setw(8) << elem << '|';
   }
   std::cout << std::endl;
   printDivider(matrix[0].size());
 
   for (auto i = 0; i < matrix.size(); ++i) {
     auto row = matrix[i];
-    std::cout << "|" << std::right << std::setfill(' ') << std::setw(7) << variablesTable[0][i] << '|';
+    std::cout << "|" << std::right << std::setfill(' ') << std::setw(8) << variablesTable[0][i] << '|';
     for (auto elem : row) {
-      std::cout << std::right << std::setfill(' ') << std::setw(7) << std::setprecision(4) << elem << '|';
+      std::cout << std::right << std::setfill(' ') << std::setw(8) << std::setprecision(4) << elem << '|';
     }
     std::cout << std::endl;
     printDivider(row.size());
